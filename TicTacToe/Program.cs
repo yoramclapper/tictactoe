@@ -65,18 +65,41 @@ class Game
         }    
     }
 
+    public static string FormatToken(int tokenAsInt )
+    {
+        return tokenAsInt switch
+        {
+            1 => "X",
+            2 => "O",
+            _ => " ",
+        };
+    }
+
+    public string FormatState()
+    {
+            return state switch
+        {
+            GameState.XToPlay => "Turn of player 'X'",
+            GameState.OToPlay => "Turn of player 'O'",
+            GameState.XWins => "Player 'X' wins",
+            GameState.OWins => "Player 'O' wins",
+            GameState.Draw => "The game is a draw",
+            _ => "Unknown game state",
+        };    
+    }
+
     public void DisplayGame()
     {
-        Console.WriteLine("\nCurrent game state: {0}\n", state);
+        Console.WriteLine("\nCurrent game state: {0}\n", FormatState());
         Console.WriteLine("Current position:\n");
 
         if (BOARD_SIZE == 3)
         {
-            Console.WriteLine("| {0} | {1} | {2} |", board[0,0], board[0,1], board[0,2]);
+            Console.WriteLine("| {0} | {1} | {2} |", FormatToken(board[0,0]), FormatToken(board[0,1]), FormatToken(board[0,2]));
             Console.WriteLine("|---|---|---|");
-            Console.WriteLine("| {0} | {1} | {2} |", board[1,0], board[1,1], board[1,2]);
+            Console.WriteLine("| {0} | {1} | {2} |", FormatToken(board[1,0]), FormatToken(board[1,1]), FormatToken(board[1,2]));
             Console.WriteLine("|---|---|---|");
-            Console.WriteLine("| {0} | {1} | {2} |", board[2,0], board[2,1], board[2,2]);
+            Console.WriteLine("| {0} | {1} | {2} |", FormatToken(board[2,0]), FormatToken(board[2,1]), FormatToken(board[2,2]));
         } 
         else 
         {
