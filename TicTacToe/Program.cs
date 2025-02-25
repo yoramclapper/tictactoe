@@ -19,13 +19,6 @@ Requirements:
 
 Components:
 
-    Board (class)
-
-    Properties:
-        Game state: Play, Win, Draw
-        Board representation (2D-array)
-        Turn: X or O
-
     Methods:
         Initialize game
         Terminate game
@@ -38,16 +31,28 @@ Components:
 */
 
 using System;
+using System.Runtime.ExceptionServices;
+
+enum GameState {
+    XToPlay,
+    OToPlay,
+    XWins,
+    OWins,
+    Draw
+};
 
 class Game
 {
     public const int BOARD_SIZE = 3;
 
-    public int[,] Board = new int[BOARD_SIZE, BOARD_SIZE];
-    public int PlayerTurn;
+    public int[,] board = new int[BOARD_SIZE, BOARD_SIZE];
+    public GameState state;
 
     public void InitGame()
     {
+        // First player 'X' makes the first move
+        state = GameState.XToPlay;
+
         // Initialize empty board
         int i ;
         for (i = 0 ; i < BOARD_SIZE ; ++i)
@@ -55,30 +60,27 @@ class Game
             int j ;
             for (j = 0 ; j < BOARD_SIZE ; ++j)
             {
-                Board[i,j] = 0;
+                board[i,j] = 0;
             }
-        }
-
-        // Player 1 makes the first move
-        PlayerTurn = 1;     
+        }    
     }
 
     public void DisplayGame()
     {
-        Console.WriteLine("\nTurn of player: {0}\n", PlayerTurn);
+        Console.WriteLine("\nCurrent game state: {0}\n", state);
         Console.WriteLine("Current position:\n");
 
         if (BOARD_SIZE == 3)
         {
-            Console.WriteLine("| {0} | {1} | {2} |", Board[0,0], Board[0,1], Board[0,2]);
+            Console.WriteLine("| {0} | {1} | {2} |", board[0,0], board[0,1], board[0,2]);
             Console.WriteLine("|---|---|---|");
-            Console.WriteLine("| {0} | {1} | {2} |", Board[1,0], Board[1,1], Board[1,2]);
+            Console.WriteLine("| {0} | {1} | {2} |", board[1,0], board[1,1], board[1,2]);
             Console.WriteLine("|---|---|---|");
-            Console.WriteLine("| {0} | {1} | {2} |", Board[2,0], Board[2,1], Board[2,2]);
+            Console.WriteLine("| {0} | {1} | {2} |", board[2,0], board[2,1], board[2,2]);
         } 
         else 
         {
-            Console.WriteLine("Board display not implemented for size: {0}", BOARD_SIZE);
+            Console.WriteLine("Board display not implemented for board-size: {0}", BOARD_SIZE);
         }
     }
 
