@@ -20,14 +20,12 @@ Requirements:
 Components:
 
     Methods:
-        Initialize game
         Terminate game
         Make move
         Check win
         Check draw
         Update state
         Update turn
-        Display board
 */
 
 using System;
@@ -43,9 +41,11 @@ enum GameState {
 
 class Game
 {
-    public const int BOARD_SIZE = 3;
+    public const int BOARD_SIZE = 9;
 
-    public int[,] board = new int[BOARD_SIZE, BOARD_SIZE];
+    public bool[] emptyFields = new bool[BOARD_SIZE];
+    public bool[] fieldsWithX = new bool[BOARD_SIZE];
+    public bool[] fieldsWithO = new bool[BOARD_SIZE];
     public GameState state;
 
     public void InitGame()
@@ -53,25 +53,77 @@ class Game
         // First player 'X' makes the first move
         state = GameState.XToPlay;
 
-        // Initialize empty board
-        int i ;
-        for (i = 0 ; i < BOARD_SIZE ; ++i)
+        // Initialize field values
+        int i;
+        for (i = 0; i < BOARD_SIZE; ++i)
         {
-            int j ;
-            for (j = 0 ; j < BOARD_SIZE ; ++j)
-            {
-                board[i,j] = 0;
-            }
-        }    
+            emptyFields[i] = true;
+            fieldsWithX[i] = false;
+            fieldsWithO[i] = false;
+        }
     }
 
-    public static string FormatToken(int tokenAsInt )
+    public int MakeMove(int i)
     {
-        return tokenAsInt switch
+        if (0 <= i && i < BOARD_SIZE)
         {
-            1 => "X",
-            2 => "O",
-            _ => " ",
+            if (emptyFields[i])
+            {
+                if (state == GameState.XToPlay)
+                {
+                    fieldsWithX[i] = true;
+                    emptyFields[i] = false;
+                    return 0;
+                }
+
+                else if (state == GameState.OToPlay)
+                {
+                    fieldsWithO[i] = true;
+                    emptyFields[i] = false;
+                    return 0;
+                }
+
+                else
+                {
+                    Console.WriteLine("Invalid move: move not possible during game state '{0}'", state);
+                    return 1;
+                }
+            }
+
+            else
+            {
+                Console.WriteLine("Invalid move: target field '{0}' is not empty", i);
+                return 1; 
+            }
+        }
+
+        else
+        {
+            Console.WriteLine("Invalid move: target field '{0}' does not exist", i);
+            return 1;
+        }
+    }
+
+    public string GetTokenOnField (int i)
+    {
+        if (emptyFields[i]) 
+        {
+            return " ";
+        }
+        
+        else if (fieldsWithX[i])
+        {
+            return "X";
+        }
+
+        else if (fieldsWithO[i])
+        {
+            return "O";
+        }
+
+        else 
+        {
+            return "?";
         };
     }
 
@@ -92,19 +144,11 @@ class Game
     {
         Console.WriteLine("\nCurrent game state: {0}\n", FormatState());
         Console.WriteLine("Current position:\n");
-
-        if (BOARD_SIZE == 3)
-        {
-            Console.WriteLine("| {0} | {1} | {2} |", FormatToken(board[0,0]), FormatToken(board[0,1]), FormatToken(board[0,2]));
-            Console.WriteLine("|---|---|---|");
-            Console.WriteLine("| {0} | {1} | {2} |", FormatToken(board[1,0]), FormatToken(board[1,1]), FormatToken(board[1,2]));
-            Console.WriteLine("|---|---|---|");
-            Console.WriteLine("| {0} | {1} | {2} |", FormatToken(board[2,0]), FormatToken(board[2,1]), FormatToken(board[2,2]));
-        } 
-        else 
-        {
-            Console.WriteLine("Board display not implemented for board-size: {0}", BOARD_SIZE);
-        }
+        Console.WriteLine("| {0} | {1} | {2} |", GetTokenOnField(0), GetTokenOnField(1), GetTokenOnField(2));
+        Console.WriteLine("|---|---|---|");
+        Console.WriteLine("| {0} | {1} | {2} |", GetTokenOnField(3), GetTokenOnField(4), GetTokenOnField(5));
+        Console.WriteLine("|---|---|---|");
+        Console.WriteLine("| {0} | {1} | {2} |", GetTokenOnField(6), GetTokenOnField(7), GetTokenOnField(8));
     }
 
     static void Main()
