@@ -50,12 +50,12 @@ class Game
         this.board = new int[BOARD_SIZE]; // Default value of array is 0
     }
 
-    private string PromptInput()
+    private string? PromptInput()
     {
         return Console.ReadLine();
     }
 
-    private int ValidateInput(string inputString)
+    private int ValidateInput(string? inputString)
     {
         /*
             Checks if input from prompt is a valid move
@@ -278,14 +278,15 @@ class Game
     public void PlayGame()
     {
         Console.WriteLine("Start new game\n");
-        InitGame(); // Initialize new game
+        this.InitGame(); // Initialize new game
+        this.DisplayGame();
 
         // Continues until result on board or no empty squares left
         int moveCounter = 0;
         while (this.result == GameResult.None) // && moveCounter < BOARD_SIZE )
         {
             FeedbackOnInput(0);
-            string input = this.PromptInput();
+            string? input = this.PromptInput();
             int validationCode = this.ValidateInput(input);
             
             // Continues to prompt for move until valid move or 'exit' is entered
