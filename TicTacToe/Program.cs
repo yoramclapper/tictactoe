@@ -20,48 +20,53 @@ enum GameResult
 class Game
 {
     /*
-    TicTacToe: Paper-and-pencil game for two players who take turns marking the fields in a three-by-three grid with X or O.
+        TicTacToe: Paper-and-pencil game for two players who take turns marking the fields in a three-by-three grid with X or O.
 
-    Properties:
-        toMove (Enum)          : X or O
-        result (Enum)          : None, Xwins, Owins, Draw
-        board (List<int>)      : index refers to field and value represents marker: 0 (empty), 1 (X), -1 (O)
+        Properties:
+            toMove (enum Marker)        : X or O
+            result (enum GameResult)    : None, Xwins, Owins, Draw
+            board (Array)               : index refers to field and value represents marker: 0 (empty), 1 (X), -1 (O)
 
-        Indexed board:
+            Indexed board:
 
-            |   0   |   1   |   2   |
-            |-------|-------|-------|
-            |   3   |   4   |   5   |
-            |-------|-------|-------|
-            |   6   |   7   |   8   |
-
-    Methods:
-        InputMove              : Prompts user to select field (index)
-        LegalMove              : Checks if move is legal
-        DoMove                 : Updates board and toMove
-        CheckResult            : Checks if there is a win or draw on the board
-    */
+                |   0   |   1   |   2   |
+                |-------|-------|-------|
+                |   3   |   4   |   5   |
+                |-------|-------|-------|
+                |   6   |   7   |   8   |
+        
+        Method 'GamePlay' implements the game and runs in 'Main'
+        */
 
     private const int BOARD_SIZE = 9;
     private Marker toMove;
     private GameResult result;
     private int[] board = new int[BOARD_SIZE];
 
-    public void InitGame()
+    private void InitGame()
     {
-        // Player 'X' starts the game
-        this.toMove = Marker.X;
+        this.toMove = Marker.X; // Player 'X' starts the game
         this.result = GameResult.None;
         this.board = new int[BOARD_SIZE]; // Default value of array is 0
     }
 
-    public string PromptInput()
+    private string PromptInput()
     {
         return Console.ReadLine();
     }
 
-    public int ValidateInput(string inputString)
+    private int ValidateInput(string inputString)
     {
+        /*
+            Checks if input from prompt is a valid move
+            Returns validation code:
+                0   : Move from input is legal
+                1   : Invalid input - Field index is out of range
+                2   : Invalid input - Field is non-empty
+                3   : Invalid input - Input can't be parsed to int
+                -1  : Player entered 'exit' to abort game
+        */
+
         try
         {
             int inputMove = int.Parse(inputString);
@@ -97,11 +102,14 @@ class Game
         }
     }
 
-    public void FeedbackOnInput(int validationCode)
+    private void FeedbackOnInput(int validationCode)
     {
         Console.WriteLine("\n");
         switch(validationCode)
         {
+            case 0:
+                Console.WriteLine("Enter square-index (0-8) to mark square on board:");
+                break;
             case 1:
                 Console.WriteLine("Entered square is out of range, re-enter move:");
                 break;
@@ -112,7 +120,7 @@ class Game
                 Console.WriteLine("Entered input is invalid, re-enter move:");
                 break;
             default:
-                Console.WriteLine("Enter square-index (0-8) to mark square on board:");
+                Console.WriteLine("Unkown validation code: {0}", validationCode);
                 break;
         }
     }
@@ -146,13 +154,13 @@ class Game
         }
     }
     
-    public void DoMove(int inputField)
+    private void DoMove(int inputField)
     {
         UpdateBoard(inputField);
         UpdateTurn();
     }
 
-    public void CheckResult()
+    private void CheckResult()
     {
         // Check rows and columns for win
         for (int i = 0; i < 3; i++)
@@ -202,7 +210,7 @@ class Game
         }
     }
 
-    public string FormatMarker (int i)
+    private string FormatMarker (int i)
     {
         int loc = this.board[i];
         if (loc == 0) 
@@ -226,7 +234,7 @@ class Game
         };
     }
 
-    public string FormatResult()
+    private string FormatResult()
     {
         string marker;
         if (this.toMove == Marker.X)
@@ -249,7 +257,7 @@ class Game
         };    
     }
 
-    public void DisplayGame()
+    private void DisplayGame()
     {
         Console.WriteLine("\nCurrent game state: {0}\n", FormatResult());
         Console.WriteLine("Current position:\n");
@@ -264,29 +272,34 @@ class Game
     public void PlayGame()
     {
         Console.WriteLine("Start new game\n");
-        InitGame();
+        InitGame(); // Initialize new game
 
+        // Continues until result on board or no empty squares left
         int moveCounter = 0;
         while (this.result == GameResult.None && moveCounter < 9 )
         {
             FeedbackOnInput(0);
-            string input = PromptInput();
-            int validationCode = ValidateInput(input);
+            string input = this.PromptInput();
+            int validationCode = this.ValidateInput(input);
+            
+            // Continues to prompt for move until valid move or 'exit' is entered
             while (validationCode > 0)
             {
-                FeedbackOnInput(validationCode);
-                input = PromptInput();
-                validationCode = ValidateInput(input);
+                this.FeedbackOnInput(validationCode);
+                input = this.PromptInput();
+                validationCode = this.ValidateInput(input);
             }
             
+            // Player entered 'exit' => game is aborted
             if (validationCode == -1)
             {
                 break;
             }
 
-            DoMove(int.Parse(input));
-            CheckResult();
-            DisplayGame();
+            // Process entered move...
+            this.DoMove(int.Parse(input));
+            this.CheckResult();
+            this.DisplayGame();
             ++moveCounter;
         }
         Console.WriteLine("\nGame ended");
