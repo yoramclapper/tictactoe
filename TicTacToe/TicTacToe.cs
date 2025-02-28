@@ -17,7 +17,7 @@ enum GameResult
 };
 
 
-class Game
+class TicTacToe
 {
     /*
         TicTacToe: Paper-and-pencil game for two players who take turns marking the fields in a three-by-three grid with X or O.
@@ -314,7 +314,7 @@ class Game
 
     static void Main()
     {
-        Game TicTacToe = new();
-        TicTacToe.PlayGame();
+        TicTacToe Game = new();
+        Game.PlayGame();
     }
 }
