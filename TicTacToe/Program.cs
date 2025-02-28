@@ -99,6 +99,7 @@ class Game
 
     public void FeedbackOnInput(int validationCode)
     {
+        Console.WriteLine("\n");
         switch(validationCode)
         {
             case 1:
@@ -260,34 +261,40 @@ class Game
         Console.WriteLine("\n");
     }
 
-    static void Main()
+    public void PlayGame()
     {
-        Console.WriteLine("Start new game");
-        Game TicTacToe = new();
-        TicTacToe.InitGame();
+        Console.WriteLine("Start new game\n");
+        InitGame();
 
         int moveCounter = 0;
-        while (TicTacToe.result == GameResult.None && moveCounter < 9 )
+        while (this.result == GameResult.None && moveCounter < 9 )
         {
-            TicTacToe.FeedbackOnInput(0);
-            string input = TicTacToe.PromptInput();
-            int validationCode = TicTacToe.ValidateInput(input);
+            FeedbackOnInput(0);
+            string input = PromptInput();
+            int validationCode = ValidateInput(input);
             while (validationCode > 0)
             {
-                TicTacToe.FeedbackOnInput(validationCode);
-                input = TicTacToe.PromptInput();
-                validationCode = TicTacToe.ValidateInput(input);
+                FeedbackOnInput(validationCode);
+                input = PromptInput();
+                validationCode = ValidateInput(input);
             }
+            
             if (validationCode == -1)
             {
-                Console.WriteLine("Game aborted");
                 break;
             }
-            TicTacToe.DoMove(int.Parse(input));
-            TicTacToe.CheckResult();
-            TicTacToe.DisplayGame();
+
+            DoMove(int.Parse(input));
+            CheckResult();
+            DisplayGame();
             ++moveCounter;
         }
-        Console.WriteLine("Game ended");
+        Console.WriteLine("\nGame ended");
+    }
+
+    static void Main()
+    {
+        Game TicTacToe = new();
+        TicTacToe.PlayGame();
     }
 }
