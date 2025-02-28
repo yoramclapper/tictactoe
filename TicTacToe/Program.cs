@@ -163,6 +163,7 @@ class Game
     private void CheckResult()
     {
         // Check rows and columns for win
+        int horizontalWinFlag = 0; // Set to 1 when 3-in-a-row on row or column
         for (int i = 0; i < 3; i++)
         {
             int row = this.board[3*i] + this.board[3*i+1] + this.board[3*i+2];
@@ -171,26 +172,31 @@ class Game
             if (row == 3 || col == 3)
             {
                 this.result = GameResult.Xwins;
+                horizontalWinFlag = 1;
             }
             
             else if (row == -3 || col == -3)
             {
                 this.result = GameResult.Owins;
+                horizontalWinFlag = 1;
             }
         }
 
         // Check diagonals for win
+        int diagonalWinFlag = 0; // Set to 1 when 3-in-a-row on a diagonal
         int diag1 = this.board[0] + this.board[4] + this.board[8];
         int diag2 = this.board[6] + this.board[4] + this.board[2];
         
         if (diag1 == 3 || diag2 == 3)
         {
             this.result = GameResult.Xwins;
+            diagonalWinFlag = 1;
         }
 
         else if (diag1 == -3 || diag2 == -3)
         {
             this.result = GameResult.Owins;
+            diagonalWinFlag = 1;
         }
 
         // Check if there are empty fields still
@@ -204,7 +210,7 @@ class Game
             }
         }
 
-        if (emptyFieldFlag == 0)
+        if (emptyFieldFlag == 0 && horizontalWinFlag == 0 && diagonalWinFlag == 0)
         {
             this.result = GameResult.Draw;
         }
@@ -276,7 +282,7 @@ class Game
 
         // Continues until result on board or no empty squares left
         int moveCounter = 0;
-        while (this.result == GameResult.None && moveCounter < 9 )
+        while (this.result == GameResult.None) // && moveCounter < BOARD_SIZE )
         {
             FeedbackOnInput(0);
             string input = this.PromptInput();
