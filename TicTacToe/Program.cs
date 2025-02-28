@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.IO.Pipelines;
 
 enum Marker 
@@ -54,53 +55,65 @@ class Game
         this.board = new int[BOARD_SIZE]; // Default value of array is 0
     }
 
-    private int LegalMove(string inputMoveString)
+    public string PromptInput()
+    {
+        return Console.ReadLine();
+    }
+
+    public int ValidateInput(string inputString)
     {
         try
         {
-            int inputMove = int.Parse(inputMoveString);
+            int inputMove = int.Parse(inputString);
             if (inputMove < 0 || inputMove >= BOARD_SIZE)
             {
-                return 1; // Field-index out of range
+                return 1; // Field index does not exist
             }
 
             else 
             {
                 if (this.board[inputMove] != 0)
                 {
-                    return 1; // Field is not empty
+                    return 2; // Field is not empty
                 }
 
                 else
                 {
-                    return 0; // Field is legal
+                    return 0; // Legal move
                 }
             }
         }
 
         catch
         {
-            return 1; // Invalid input given
+            if (inputString == "exit")
+            {
+                return -1; // Abort game
+            }
+            else
+            {
+                return 3; // Invalid input given
+            }    
         }
     }
 
-    // TODO: Players should be able to exit the game before game is over
-    public int InputMove()
+    public void FeedbackOnInput(int validationCode)
     {
-        string inputMoveString;
-        int inputMove;
-
-        Console.WriteLine("Enter field to place your mark: ");
-        inputMoveString = Console.ReadLine();
-        
-        while (LegalMove(inputMoveString) > 0)
+        switch(validationCode)
         {
-            Console.WriteLine("\nEntered move is not legal, re-enter move: ");
-            inputMoveString = Console.ReadLine();
+            case 1:
+                Console.WriteLine("Entered square is out of range, re-enter move:");
+                break;
+            case 2:
+                Console.WriteLine("Entered square is not empty, re-enter move:");
+                break;
+            case 3:
+                Console.WriteLine("Entered input is invalid, re-enter move:");
+                break;
+            default:
+                Console.WriteLine("Enter square-index (0-8) to mark square on board:");
+                break;
         }
-
-        inputMove = int.Parse(inputMoveString);
-        return inputMove;
     }
     
     private void UpdateBoard(int inputField)
@@ -138,77 +151,53 @@ class Game
         UpdateTurn();
     }
 
-    // TODO: Make search more efficient
     public void CheckResult()
     {
-        if 
-        (
-            this.board[0] + this.board[1] + this.board[2] == 3
-            || 
-            this.board[3] + this.board[4] + this.board[5] == 3
-            ||
-            this.board[6] + this.board[7] + this.board[8] == 3
-            ||
-            this.board[0] + this.board[3] + this.board[6] == 3
-            || 
-            this.board[1] + this.board[4] + this.board[7] == 3
-            ||
-            this.board[2] + this.board[5] + this.board[8] == 3
-            || 
-            this.board[0] + this.board[4] + this.board[8] == 3
-            ||
-            this.board[2] + this.board[4] + this.board[6] == 3
-
-        )
+        // Check rows and columns for win
+        for (int i = 0; i < 3; i++)
         {
-            result = GameResult.Xwins;
+            int row = this.board[3*i] + this.board[3*i+1] + this.board[3*i+2];
+            int col = this.board[i] + this.board[i+3] + this.board[i+6];
+            
+            if (row == 3 || col == 3)
+            {
+                this.result = GameResult.Xwins;
+            }
+            
+            else if (row == -3 || col == -3)
+            {
+                this.result = GameResult.Owins;
+            }
         }
 
-        else if 
-        (
-            this.board[0] + this.board[1] + this.board[2] == -3
-            || 
-            this.board[3] + this.board[4] + this.board[5] == -3
-            ||
-            this.board[6] + this.board[7] + this.board[8] == -3
-            ||
-            this.board[0] + this.board[3] + this.board[6] == -3
-            || 
-            this.board[1] + this.board[4] + this.board[7] == -3
-            ||
-            this.board[2] + this.board[5] + this.board[8] == -3
-            || 
-            this.board[0] + this.board[4] + this.board[8] == -3
-            ||
-            this.board[2] + this.board[4] + this.board[6] == -3
-
-        )
+        // Check diagonals for win
+        int diag1 = this.board[0] + this.board[4] + this.board[8];
+        int diag2 = this.board[6] + this.board[4] + this.board[2];
+        
+        if (diag1 == 3 || diag2 == 3)
         {
-            result = GameResult.Owins;
+            this.result = GameResult.Xwins;
         }
 
-        else if
-        (
-            this.board[0] != 0
-            &&
-            this.board[1] != 0
-            &&
-            this.board[2] != 0
-            &&
-            this.board[3] != 0
-            &&
-            this.board[4] != 0
-            &&
-            this.board[5] != 0
-            &&
-            this.board[6] != 0
-            &&
-            this.board[7] != 0
-            &&
-            this.board[8] != 0
-        )
+        else if (diag1 == -3 || diag2 == -3)
         {
-            result = GameResult.Draw;
+            this.result = GameResult.Owins;
+        }
+
+        // Check if there are empty fields still
+        int emptyFieldFlag = 0;
+        for (int i = 0; i < BOARD_SIZE; i++)
+        {
+            if (this.board[i] == 0)
+            {
+                emptyFieldFlag = 1;
+                break;
+            }
+        }
+
+        if (emptyFieldFlag == 0)
+        {
+            this.result = GameResult.Draw;
         }
     }
 
@@ -280,8 +269,21 @@ class Game
         int moveCounter = 0;
         while (TicTacToe.result == GameResult.None && moveCounter < 9 )
         {
-            int inputMove = TicTacToe.InputMove();
-            TicTacToe.DoMove(inputMove);
+            TicTacToe.FeedbackOnInput(0);
+            string input = TicTacToe.PromptInput();
+            int validationCode = TicTacToe.ValidateInput(input);
+            while (validationCode > 0)
+            {
+                TicTacToe.FeedbackOnInput(validationCode);
+                input = TicTacToe.PromptInput();
+                validationCode = TicTacToe.ValidateInput(input);
+            }
+            if (validationCode == -1)
+            {
+                Console.WriteLine("Game aborted");
+                break;
+            }
+            TicTacToe.DoMove(int.Parse(input));
             TicTacToe.CheckResult();
             TicTacToe.DisplayGame();
             ++moveCounter;
